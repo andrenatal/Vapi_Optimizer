@@ -1,6 +1,6 @@
 # Vapi Voice Agent Optimizer
 
-ML-driven system that automatically improves a Vapi dental scheduler voice agent through iterative evaluation and prompt optimization.
+ML-driven system that automatically improves a Vapi voice agent through iterative evaluation and prompt optimization.
 
 ## How It Works
 
