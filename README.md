@@ -79,6 +79,138 @@ python optimizer.py
 python visualize.py
 ```
 
+## Sequence Diagram
+
+### Single Test Call (`test_call.py`)
+
+```mermaid
+sequenceDiagram
+    participant Script as test_call.py
+    participant Vapi as Vapi API
+    participant PhoneB as Phone B (Patient)
+    participant PhoneA as Phone A (Scheduler)
+    participant Results as call_results/
+
+    Script->>Vapi: POST /call (assistantId=patient, phoneNumberId=B, customer=A)
+    Vapi-->>Script: { id: call_id, status: "queued" }
+
+    Vapi->>PhoneB: Activate patient assistant
+    PhoneB->>PhoneA: Outbound call (PSTN)
+    Vapi->>PhoneA: Activate scheduler assistant (inbound)
+
+    Note over PhoneB,PhoneA: Real voice conversation<br/>Patient (bot) ↔ Scheduler (user)
+
+    PhoneA-->>PhoneB: endCallPhrase detected → hang up
+
+    Vapi->>Vapi: Run analysisPlan<br/>• structuredData extraction<br/>• successEvaluation (NumericScale 1-10)<br/>• summary generation
+
+    loop Poll every 5s
+        Script->>Vapi: GET /call/{call_id}
+        Vapi-->>Script: { status: "in-progress" }
+    end
+
+    Script->>Vapi: GET /call/{call_id}
+    Vapi-->>Script: { status: "ended", analysis, artifact, ... }
+
+    Script->>Script: Compute verdict<br/>• checklist score (6 criteria)<br/>• duration check (>60s = fail)<br/>• final pass/fail
+
+    Script->>Results: Save call.json
+    Script->>Results: Save transcript.txt
+    Script->>Vapi: GET recordingUrl
+    Vapi-->>Script: audio data (WAV)
+    Script->>Results: Save recording.wav
+    Script->>Results: Save verdict.json
+```
+
+### Optimization Loop (`optimizer.py`)
+
+```mermaid
+sequenceDiagram
+    participant Optimizer as optimizer.py
+    participant DSPy as DSPy (Claude Sonnet)
+    participant Vapi as Vapi API
+    participant PhoneB as Phone B (Patient)
+    participant PhoneA as Phone A (Scheduler)
+
+    Note over Optimizer: Phase 1: DSPy Iterative Refinement
+
+    Optimizer->>Vapi: PATCH /assistant/{scheduler}<br/>Deploy candidate prompt
+
+    loop For each evaluation call
+        Optimizer->>Vapi: POST /call (patient → scheduler)
+        Vapi->>PhoneB: Activate patient
+        PhoneB->>PhoneA: Voice call
+        Note over PhoneB,PhoneA: AI-to-AI conversation
+        PhoneA-->>PhoneB: Call ends
+
+        loop Poll until ended
+            Optimizer->>Vapi: GET /call/{id}
+        end
+
+        Vapi-->>Optimizer: transcript + structuredData + successEvaluation
+    end
+
+    Optimizer->>Optimizer: Extract features from transcripts<br/>• turn count, hedge words<br/>• identity confusion, response length
+
+    Optimizer->>Optimizer: K-Means clustering on TF-IDF<br/>Identify failure modes
+
+    Optimizer->>DSPy: AnalyzeAndImprove<br/>transcripts + scores + failure patterns
+    DSPy-->>Optimizer: improved_prompt + improved_first_message
+
+    Note over Optimizer: Repeat Phase 1 (4 iterations)
+
+    Note over Optimizer: Phase 2: Optuna Bayesian Search
+
+    Optimizer->>DSPy: GenerateComponentVariants<br/>Break best prompt into 6 components
+    DSPy-->>Optimizer: 3 variants per component (729 combos)
+
+    loop Optuna trials (6 iterations)
+        Optimizer->>Optimizer: TPE selects component combination
+        Optimizer->>Vapi: PATCH /assistant/{scheduler}<br/>Assembled prompt
+        Optimizer->>Vapi: POST /call → poll → score
+        Vapi-->>Optimizer: composite score
+        Optimizer->>Optimizer: Report score to Optuna
+    end
+
+    Optimizer->>Optimizer: Select best combination
+    Optimizer->>Vapi: PATCH /assistant/{scheduler}<br/>Final optimized prompt
+    Optimizer->>Vapi: POST /call (validation run)
+    Vapi-->>Optimizer: Final scores
+
+    Optimizer->>Optimizer: Save results/final_report.json
+```
+
+### Full System Overview
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CreateAgents as create_agents.py
+    participant TestCall as test_call.py
+    participant Optimizer as optimizer.py
+    participant Visualize as visualize.py
+    participant Vapi as Vapi API
+
+    User->>CreateAgents: Setup
+    CreateAgents->>Vapi: POST /assistant (scheduler)
+    CreateAgents->>Vapi: POST /assistant (patient)
+    Vapi-->>CreateAgents: assistant IDs
+    CreateAgents-->>User: Save IDs to .env
+
+    User->>TestCall: Smoke test
+    TestCall->>Vapi: POST /call → poll → score
+    Vapi-->>TestCall: results
+    TestCall-->>User: call_results/{id}/ (json + audio + transcript)
+
+    User->>Optimizer: Run optimization
+    Optimizer->>Vapi: Iterative PATCH + call + score loop
+    Note over Optimizer,Vapi: Phase 1: DSPy refinement (4 iterations)<br/>Phase 2: Optuna search (6 trials)
+    Optimizer-->>User: results/final_report.json
+
+    User->>Visualize: View results
+    Visualize-->>User: Improvement curve + scores + prompts
+```
+
 ## Architecture
 
 ### Two-Assistant Test Framework
