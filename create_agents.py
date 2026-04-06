@@ -49,7 +49,7 @@ DENTAL_SCHEDULER_PROMPT = """Help people who call.
 def create_dental_scheduler():
     """Create Assistant A: the dental office scheduler."""
     payload = {
-        "name": "Dental Scheduler (Optimization Target)",
+        "name": "Dental Scheduler (Optimizer)",
         "firstMessage": "Hello! How can I help you today?",
         "firstMessageMode": "assistant-speaks-first",
         "model": {
@@ -116,7 +116,7 @@ SIMULATED_PATIENT_PROMPT = """You are Maria Garcia, a 34-year-old woman calling 
 def create_simulated_patient():
     """Create Assistant B: the simulated patient caller."""
     payload = {
-        "name": "Simulated Patient (Tester)",
+        "name": "Simulated Patient for optimizer",
         "model": {
             "provider": "openai",
             "model": "gpt-4o",
