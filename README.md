@@ -20,6 +20,12 @@ https://github.com/user-attachments/assets/dadfe9b1-e965-4ce0-a437-e8007bfda7c0
 
 2. Call recording after optimization
 
+
+
+https://github.com/user-attachments/assets/4af2f8e7-1ec7-4384-843b-ee337a0def0f
+
+
+
 ### 1. Agent Creation & Baseline Evaluation — `create_agents.py`
 
 Creates two Vapi assistants: a dental office scheduler (gpt-4o-mini) with a minimal, unoptimized prompt, and a simulated patient caller (gpt-4o) with a challenging persona that pushes back on vague pricing, asks about tooth pain, and demands cancellation policy details. The scheduler is assigned to an inbound phone number, the patient calls it, and the resulting call is scored via Vapi's built-in analysis plan — establishing the baseline performance that the optimizer will improve upon.
