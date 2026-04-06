@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/dadfe9b1-e965-4ce0-a437-e8007bfda7c0
 
 https://github.com/user-attachments/assets/4af2f8e7-1ec7-4384-843b-ee337a0def0f
 
-*Disclaimer: Bot-to-bot conversations are prone to dialog fluidity being affected by imperfect turn detection and VAD algorithms in STT engines, as well as by malformed prosody and sound artifacts produced by TTS engines, and this is not related to prompt optimization*
+*Bot-to-bot conversations may exhibit occasional dialog artifacts — interruptions, overlapping speech, or unnatural pauses — caused by imperfect turn detection (VAD) in STT engines and prosody artifacts from TTS engines. These are inherent to real-time voice AI interactions and unrelated to prompt optimization.*
 
 ### 1. Agent Creation & Baseline Evaluation — `create_agents.py`
 
