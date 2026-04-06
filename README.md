@@ -159,6 +159,9 @@ Three different models, three different jobs:
 
 The bot patient calls the scheduler via Vapi's telephony. Real voice calls are made, transcribed, and scored automatically.
 
+### Machine Learning concept
+This approach is analogous to contextual bandit optimization, where each prompt variant is an arm and rewards are estimated through interaction with the environment.
+
 ### Scoring Pipeline
 
 After each call, Vapi's `analysisPlan` extracts:
