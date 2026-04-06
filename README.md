@@ -174,20 +174,24 @@ Starting from a minimal prompt (`"You are a receptionist at a dental office. Hel
 
 ### Improvement Curve
 
-Phase 1 — DSPy Iterative Refinement:
+#### Phase 1 — DSPy Iterative Refinement
 
-Iter 1: 0.493 ████████████████████░░░░░░░░░░░░░░░░░░░░ 4/6, not booked
-Iter 2: 0.597 ████████████████████████░░░░░░░░░░░░░░░░ 5/6, not booked
-Iter 3: 0.986 ███████████████████████████████████████░░ 6/6, BOOKED ★ (99s, score 10)
+| Iteration | Composite | Checklist | Booked | Vapi Score | Duration |
+|---|---|---|---|---|---|
+| 1 (baseline) | 0.493 | 4/6 | ❌ | 8 | 180s (timeout) |
+| 2 | 0.597 | 5/6 | ❌ | 9 | 180s (timeout) |
+| **3** | **0.986** | **6/6** | **✅** | **10** | **99s** ★ |
 
-Phase 2 — Optuna Bayesian Search (6 trials):
+#### Phase 2 — Optuna Bayesian Search
 
-Trial 0: 0.410 ████████████████░░░░░░░░░░░░░░░░░░░░░░░░ 3/6, not booked
-Trial 1: 0.410 ████████████████░░░░░░░░░░░░░░░░░░░░░░░░ 3/6, not booked
-Trial 2: 0.850 ██████████████████████████████████░░░░░░░ 6/6, BOOKED
-Trial 3: 0.513 ████████████████████░░░░░░░░░░░░░░░░░░░░ 4/6, not booked
-Trial 4: 0.747 █████████████████████████████░░░░░░░░░░░░ 5/6, BOOKED
-Trial 5: 0.430 █████████████████░░░░░░░░░░░░░░░░░░░░░░░ 3/6, not booked
+| Trial | Composite | Checklist | Booked | Component Selection |
+|---|---|---|---|---|
+| 0 | 0.410 | 3/6 | ❌ | identity=1, pricing=0, hours=1, flow=2, objections=0, rules=2 |
+| 1 | 0.410 | 3/6 | ❌ | identity=2, pricing=2, hours=1, flow=1, objections=0, rules=1 |
+| **2** | **0.850** | **6/6** | **✅** | **identity=2, pricing=2, hours=1, flow=0, objections=2, rules=1** |
+| 3 | 0.513 | 4/6 | ❌ | identity=1, pricing=2, hours=2, flow=2, objections=1, rules=0 |
+| 4 | 0.747 | 5/6 | ✅ | identity=1, pricing=1, hours=2, flow=0, objections=2, rules=1 |
+| 5 | 0.430 | 3/6 | ❌ | identity=2, pricing=1, hours=0, flow=2, objections=2, rules=2 |
 
 Final Validation: 0.830 6/6 checklist, BOOKED ✓
 
